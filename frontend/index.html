@@ -8,122 +8,127 @@
 </head>
 <body>
 
-  <div class="page">
+  <div class="layout">
 
-    <!-- Header -->
-    <header class="hero">
-      <div class="hero-badge">100% Local · Verileriniz cihazınızdan çıkmaz</div>
-      <h1>AI Document <span class="accent">&</span> CV Analyzer</h1>
-      <p class="hero-sub">Yapay zekaya verilerinizin gittiğinden endişe etmeyin.<br>Belge özetleme ve CV analizini kendi cihazınızda yapın.</p>
-      <div class="hero-pills">
-        <span class="pill">🔒 İnternet bağlantısı gerekmez</span>
-        <span class="pill">💸 Ücretsiz, API yok</span>
-        <span class="pill">⚡ Tamamen local AI</span>
-      </div>
-    </header>
+    <!-- Sol Sidebar: Sistem Kaynakları -->
+    <aside class="sidebar">
+      <div class="sidebar-title">Sistem Kaynakları</div>
 
-    <!-- Sistem Kaynakları -->
-    <section class="stats-grid">
       <div class="stat-card" id="cpu-card">
         <div class="stat-top">
           <div>
-            <div class="stat-label">İşlemci (CPU)</div>
+            <div class="stat-label">CPU</div>
             <div class="stat-value"><span id="cpu-val">—</span><span class="stat-unit">%</span></div>
           </div>
           <div class="stat-badge" id="cpu-badge">—</div>
         </div>
-        <canvas id="cpu-chart" height="56"></canvas>
-        <div class="stat-note">Llama3 soru işlerken ~%60-90 kullanır · Boşta &lt;%5</div>
+        <canvas id="cpu-chart" height="52"></canvas>
+        <div class="stat-note">AI yanıt üretirken ~%60-90'a çıkar</div>
       </div>
 
       <div class="stat-card" id="ram-card">
         <div class="stat-top">
           <div>
-            <div class="stat-label">Bellek (RAM)</div>
+            <div class="stat-label">RAM</div>
             <div class="stat-value"><span id="ram-val">—</span><span class="stat-unit">GB</span></div>
           </div>
           <div class="stat-badge" id="ram-badge">—</div>
         </div>
-        <canvas id="ram-chart" height="56"></canvas>
-        <div class="stat-note">Llama3 ~4-5 GB kullanır · Toplam: <span id="ram-total">—</span> GB</div>
-      </div>
-    </section>
-
-    <!-- Step 1: Mod + Upload -->
-    <section class="card" id="upload-section">
-      <div class="card-header">
-        <span class="step-num">01</span>
-        <h2>Mod Seç &amp; PDF Yükle</h2>
+        <canvas id="ram-chart" height="52"></canvas>
+        <div class="stat-note">Llama3 ~4-5 GB · Toplam: <span id="ram-total">—</span> GB</div>
       </div>
 
-      <div class="mode-selector">
-        <button class="mode-btn active" data-mode="document">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Doküman
-        </button>
-        <button class="mode-btn" data-mode="cv">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-          CV / Özgeçmiş
-        </button>
+      <div class="sidebar-footer">
+        Her 2 sn güncellenir
       </div>
+    </aside>
 
-      <div class="drop-zone" id="drop-zone">
-        <div class="drop-icon">
-          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <!-- Ana İçerik -->
+    <div class="main">
+
+      <header class="hero">
+        <div class="hero-badge">100% Local · Verileriniz cihazınızdan çıkmaz</div>
+        <h1>AI Document <span class="accent">&</span> CV Analyzer</h1>
+        <p class="hero-sub">Yapay zekaya verilerinizin gittiğinden endişe etmeyin.<br>Belge özetleme ve CV analizini kendi cihazınızda yapın.</p>
+        <div class="hero-pills">
+          <span class="pill">🔒 İnternet gerekmez</span>
+          <span class="pill">💸 Ücretsiz</span>
+          <span class="pill">⚡ Local AI</span>
         </div>
-        <p id="drop-label">Dosyayı sürükle veya tıkla</p>
-        <span class="drop-hint">Yalnızca PDF</span>
-        <input type="file" id="file-input" accept=".pdf" hidden />
-      </div>
+      </header>
 
-      <button id="upload-btn" class="btn-primary" disabled>Yükle</button>
-      <p id="upload-status" class="status"></p>
-    </section>
+      <!-- Step 1 -->
+      <section class="card" id="upload-section">
+        <div class="card-header">
+          <span class="step-num">01</span>
+          <h2>Mod Seç &amp; PDF Yükle</h2>
+        </div>
 
-    <!-- Step 2: Ask -->
-    <section class="card" id="ask-section" style="display:none;">
-      <div class="card-header">
-        <span class="step-num">02</span>
-        <h2>Soru Sor</h2>
-      </div>
-
-      <div id="cv-shortcuts" class="shortcuts" style="display:none;">
-        <span class="shortcuts-label">Hızlı soru:</span>
-        <button class="chip">Deneyimleri listele</button>
-        <button class="chip">Teknik becerileri çıkar</button>
-        <button class="chip">Eğitim bilgilerini özetle</button>
-        <button class="chip">Bu CV güçlü mü?</button>
-      </div>
-
-      <div class="textarea-wrap">
-        <textarea id="question-input" placeholder="Doküman hakkında bir soru yaz..." rows="3"></textarea>
-        <span class="textarea-hint">Ctrl + Enter ile gönder</span>
-      </div>
-
-      <button id="ask-btn" class="btn-primary">
-        <span id="ask-btn-label">Sor</span>
-        <span id="ask-spinner" class="spinner" style="display:none;"></span>
-      </button>
-
-      <!-- Yanıt -->
-      <div id="answer-box" class="answer-box" style="display:none;">
-        <div class="answer-header">
-          <span class="answer-label">Yanıt</span>
-          <button id="copy-btn" class="btn-ghost" title="Kopyala">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Kopyala
+        <div class="mode-selector">
+          <button class="mode-btn active" data-mode="document">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Doküman
+          </button>
+          <button class="mode-btn" data-mode="cv">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            CV / Özgeçmiş
           </button>
         </div>
-        <p id="answer-text"></p>
-      </div>
 
-      <p id="ask-status" class="status"></p>
-    </section>
+        <div class="drop-zone" id="drop-zone">
+          <div class="drop-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <p id="drop-label">Dosyayı sürükle veya tıkla</p>
+          <span class="drop-hint">Yalnızca PDF</span>
+          <input type="file" id="file-input" accept=".pdf" hidden />
+        </div>
 
-    <footer class="footer">
-      Tamamen local çalışır · Veriler cihazından ayrılmaz
-    </footer>
+        <button id="upload-btn" class="btn-primary" disabled>Yükle</button>
+        <p id="upload-status" class="status"></p>
+      </section>
 
+      <!-- Step 2 -->
+      <section class="card" id="ask-section" style="display:none;">
+        <div class="card-header">
+          <span class="step-num">02</span>
+          <h2>Soru Sor</h2>
+        </div>
+
+        <div id="cv-shortcuts" class="shortcuts" style="display:none;">
+          <span class="shortcuts-label">Hızlı:</span>
+          <button class="chip">Deneyimleri listele</button>
+          <button class="chip">Teknik becerileri çıkar</button>
+          <button class="chip">Eğitim bilgilerini özetle</button>
+          <button class="chip">Bu CV güçlü mü?</button>
+        </div>
+
+        <div class="textarea-wrap">
+          <textarea id="question-input" placeholder="Doküman hakkında bir soru yaz..." rows="3"></textarea>
+          <span class="textarea-hint">Ctrl + Enter ile gönder</span>
+        </div>
+
+        <button id="ask-btn" class="btn-primary">
+          <span id="ask-btn-label">Sor</span>
+          <span id="ask-spinner" class="spinner" style="display:none;"></span>
+        </button>
+
+        <div id="answer-box" class="answer-box" style="display:none;">
+          <div class="answer-header">
+            <span class="answer-label">Yanıt</span>
+            <button id="copy-btn" class="btn-ghost">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Kopyala
+            </button>
+          </div>
+          <p id="answer-text"></p>
+        </div>
+
+        <p id="ask-status" class="status"></p>
+      </section>
+
+      <footer class="footer">Tamamen local · Veriler cihazından ayrılmaz</footer>
+    </div>
   </div>
 
   <script src="app.js"></script>
