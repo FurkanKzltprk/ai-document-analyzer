@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Document & CV Analyzer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>AI Document & CV Analyzer</h1>
+    <p class="subtitle">PDF yükle, Llama3 ile analiz et</p>
+
+    <!-- PDF Yükleme -->
+    <div class="card" id="upload-section">
+      <h2>1. Mod Seç & PDF Yükle</h2>
+      <div class="mode-selector">
+        <button class="mode-btn active" data-mode="document">Doküman</button>
+        <button class="mode-btn" data-mode="cv">CV / Özgeçmiş</button>
+      </div>
+      <div class="drop-zone" id="drop-zone">
+        <span id="drop-label">Dosyayı buraya sürükle veya tıkla</span>
+        <input type="file" id="file-input" accept=".pdf" hidden />
+      </div>
+      <button id="upload-btn" disabled>Yükle</button>
+      <p id="upload-status" class="status"></p>
+    </div>
+
+    <!-- Soru Sorma -->
+    <div class="card" id="ask-section" style="display:none;">
+      <h2>2. Soru Sor</h2>
+      <div id="cv-shortcuts" style="display:none;" class="shortcuts">
+        <span>Hızlı:</span>
+        <button class="shortcut-btn">Deneyimleri listele</button>
+        <button class="shortcut-btn">Teknik becerileri çıkar</button>
+        <button class="shortcut-btn">Eğitim bilgilerini özetle</button>
+        <button class="shortcut-btn">Bu CV güçlü mü?</button>
+      </div>
+      <textarea id="question-input" placeholder="Doküman hakkında bir soru yaz..." rows="3"></textarea>
+      <button id="ask-btn">Sor</button>
+      <div id="answer-box" class="answer-box" style="display:none;">
+        <h3>Yanıt</h3>
+        <p id="answer-text"></p>
+      </div>
+      <p id="ask-status" class="status"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
