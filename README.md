@@ -1,26 +1,31 @@
 # AI Document & CV Analyzer
 
-PDF dosyalarını ve özgeçmişleri yerel bir yapay zeka modeli ile analiz etmeni sağlayan bir web uygulaması. Hiçbir ücretli API kullanılmıyor — her şey kendi bilgisayarında çalışıyor.
+> Yapay zekaya verilerinizin gittiğinden endişe etmeyin — belge özetleme ve CV analizini kendi cihazınızda yapın.
 
-## Ne Yapar?
+Hiçbir bulut servisi yok. Hiçbir API anahtarı yok. Dosyalarınız sadece sizin bilgisayarınızda kalır.
 
-- PDF veya CV yüklersin
-- **Doküman modu:** Genel sorular sor, özet çıkar
-- **CV modu:** Deneyimleri, becerileri, eğitim bilgilerini analiz et; hazır sorularla hızlı başla
-- Llama3 modeli dokümanı okuyup sana yanıt verir
+## Neden Bu Uygulama?
+
+ChatGPT veya diğer bulut tabanlı araçlara bir CV ya da gizli belge yüklediğinizde, o veriler bir sunucuya gidiyor. Bu uygulama tamamen yerel çalışır: model de, işlem de, yanıt da sizin cihazınızda.
+
+- **Belge analizi** — Sözleşme, rapor, makale, herhangi bir PDF
+- **CV analizi** — Deneyim, beceri, eğitim özeti; hazır hızlı sorularla
+- **Soru-cevap** — Doküman hakkında istediğinizi sorabilirsiniz
 
 ## Teknolojiler
 
-- **Backend:** Python, FastAPI
-- **Frontend:** HTML, CSS, JavaScript
-- **Yapay Zeka:** [Ollama](https://ollama.com) + Llama3 (yerel, internet gerektirmez)
-- **PDF İşleme:** PyMuPDF
+| Katman | Teknoloji |
+|--------|-----------|
+| Backend | Python, FastAPI |
+| Frontend | HTML, CSS, JavaScript |
+| AI | [Ollama](https://ollama.com) + Llama3 (yerel) |
+| PDF | PyMuPDF |
 
 ## Kurulum
 
-### 1. Ollama'yı Kur
+### 1. Ollama + Llama3
 
-[ollama.com](https://ollama.com) adresinden indir ve kur. Ardından Llama3 modelini indir:
+[ollama.com](https://ollama.com) adresinden Ollama'yı kur, ardından:
 
 ```bash
 ollama pull llama3
@@ -29,11 +34,11 @@ ollama pull llama3
 ### 2. Projeyi Klonla
 
 ```bash
-git clone https://github.com/kiziltoprakfurkan/ai-document-analyzer.git
+git clone https://github.com/FurkanKzltprk/ai-document-analyzer.git
 cd ai-document-analyzer
 ```
 
-### 3. Python Ortamını Kur
+### 3. Python Ortamı
 
 ```bash
 python -m venv venv
@@ -49,33 +54,30 @@ pip install -r requirements.txt
 
 ### 4. Çalıştır
 
-İki ayrı terminal aç:
-
 ```bash
-# Terminal 1 — Ollama
+# Terminal 1
 ollama serve
 
-# Terminal 2 — Backend
+# Terminal 2
 uvicorn backend.main:app --reload
 ```
 
-Sonra `frontend/index.html` dosyasını tarayıcında aç.
+`frontend/index.html` dosyasını tarayıcınızda açın.
 
 ## Kullanım
 
-1. **PDF Yükle** — Analiz etmek istediğin dosyayı sürükle ya da seç
-2. **Soru Sor** — Doküman hakkında aklına takılan her şeyi yazabilirsin
-3. **Yanıt Al** — Llama3 dokümanı okuyup sana yanıt verir
+1. **Mod seçin** — Doküman ya da CV
+2. **PDF yükleyin** — Sürükleyin veya tıklayın
+3. **Soru sorun** — CV modunda hazır sorular mevcut
+4. **Yanıtı kopyalayın** — Tek tıkla panoya alın
 
-> İlk yanıt biraz uzun sürebilir; model ilk çalıştırmada yükleniyor.
+> İlk sorguda model yüklendiği için biraz bekleme olabilir.
 
-## API
+## Sistem Gereksinimleri
 
-| Method | Endpoint  | Açıklama              |
-|--------|-----------|-----------------------|
-| POST   | /upload   | PDF yükle             |
-| POST   | /ask      | Soru sor              |
-| GET    | /health   | Sunucu durumu         |
+- 8 GB+ RAM (16 GB önerilir)
+- Llama3 modeli için ~5 GB disk alanı
+- İnternet bağlantısı gerekmez
 
 ## Lisans
 
