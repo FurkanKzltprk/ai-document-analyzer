@@ -1,17 +1,27 @@
 const API = "http://localhost:8000";
 
-const dropZone     = document.getElementById("drop-zone");
-const fileInput    = document.getElementById("file-input");
-const dropLabel    = document.getElementById("drop-label");
-const uploadBtn    = document.getElementById("upload-btn");
-const uploadStatus = document.getElementById("upload-status");
-const askSection   = document.getElementById("ask-section");
-const questionInput= document.getElementById("question-input");
-const askBtn       = document.getElementById("ask-btn");
-const cvShortcuts  = document.getElementById("cv-shortcuts");
-const modeBtns     = document.querySelectorAll(".mode-btn");
+const dropZone      = document.getElementById("drop-zone");
+const fileInput     = document.getElementById("file-input");
+const dropLabel     = document.getElementById("drop-label");
+const uploadBtn     = document.getElementById("upload-btn");
+const uploadStatus  = document.getElementById("upload-status");
+const askSection    = document.getElementById("ask-section");
+const questionInput = document.getElementById("question-input");
+const askBtn        = document.getElementById("ask-btn");
+const askBtnLabel   = document.getElementById("ask-btn-label");
+const askSpinner    = document.getElementById("ask-spinner");
+const cvShortcuts   = document.getElementById("cv-shortcuts");
+const modeBtns      = document.querySelectorAll(".mode-btn");
+const answerBox     = document.getElementById("answer-box");
+const answerText    = document.getElementById("answer-text");
+const askStatus     = document.getElementById("ask-status");
+const copyBtn       = document.getElementById("copy-btn");
 
-let currentMode = "document";
+let currentMode  = "document";
+let selectedFile = null;
+let currentDocId = null;
+
+// ── Mod Seçimi ──────────────────────────────────
 
 modeBtns.forEach(btn => {
   btn.addEventListener("click", () => {
@@ -20,25 +30,19 @@ modeBtns.forEach(btn => {
     currentMode = btn.dataset.mode;
     cvShortcuts.style.display = currentMode === "cv" ? "flex" : "none";
     questionInput.placeholder = currentMode === "cv"
-      ? "CV hakkında bir soru sor (örn: Adayın becerileri neler?)"
+      ? "CV hakkında bir soru sor..."
       : "Doküman hakkında bir soru yaz...";
   });
 });
 
-document.querySelectorAll(".shortcut-btn").forEach(btn => {
+document.querySelectorAll(".chip").forEach(btn => {
   btn.addEventListener("click", () => {
     questionInput.value = btn.textContent;
     questionInput.focus();
   });
 });
-const answerBox    = document.getElementById("answer-box");
-const answerText   = document.getElementById("answer-text");
-const askStatus    = document.getElementById("ask-status");
 
-let selectedFile = null;
-let currentDocId = null;
-
-// --- Dosya seçimi ---
+// ── Dosya Seçimi ────────────────────────────────
 
 dropZone.addEventListener("click", () => fileInput.click());
 
@@ -46,18 +50,13 @@ fileInput.addEventListener("change", () => {
   if (fileInput.files[0]) setFile(fileInput.files[0]);
 });
 
-dropZone.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  dropZone.classList.add("over");
-});
-
+dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("over"); });
 dropZone.addEventListener("dragleave", () => dropZone.classList.remove("over"));
-
-dropZone.addEventListener("drop", (e) => {
+dropZone.addEventListener("drop", e => {
   e.preventDefault();
   dropZone.classList.remove("over");
   const f = e.dataTransfer.files[0];
-  if (f && f.type === "application/pdf") setFile(f);
+  if (f?.type === "application/pdf") setFile(f);
   else setStatus(uploadStatus, "Sadece PDF dosyası yükleyebilirsiniz.", "error");
 });
 
@@ -69,7 +68,7 @@ function setFile(file) {
   setStatus(uploadStatus, "", "");
 }
 
-// --- PDF Yükleme ---
+// ── PDF Yükleme ─────────────────────────────────
 
 uploadBtn.addEventListener("click", async () => {
   if (!selectedFile) return;
@@ -81,13 +80,12 @@ uploadBtn.addEventListener("click", async () => {
   formData.append("file", selectedFile);
 
   try {
-    const res = await fetch(`${API}/upload`, { method: "POST", body: formData });
+    const res  = await fetch(`${API}/upload`, { method: "POST", body: formData });
     const data = await res.json();
-
     if (!res.ok) throw new Error(data.detail || "Yükleme hatası");
 
     currentDocId = data.doc_id;
-    setStatus(uploadStatus, `✓ ${data.char_count} karakter çıkarıldı.`, "success");
+    setStatus(uploadStatus, `✓ ${data.char_count.toLocaleString()} karakter çıkarıldı.`, "success");
     askSection.style.display = "block";
     askSection.scrollIntoView({ behavior: "smooth" });
   } catch (err) {
@@ -96,10 +94,10 @@ uploadBtn.addEventListener("click", async () => {
   }
 });
 
-// --- Soru Sorma ---
+// ── Soru Sorma ──────────────────────────────────
 
 askBtn.addEventListener("click", askQuestion);
-questionInput.addEventListener("keydown", (e) => {
+questionInput.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.ctrlKey) askQuestion();
 });
 
@@ -107,18 +105,17 @@ async function askQuestion() {
   const question = questionInput.value.trim();
   if (!question || !currentDocId) return;
 
-  askBtn.disabled = true;
+  setAsking(true);
   answerBox.style.display = "none";
   setStatus(askStatus, "Llama3 düşünüyor...", "loading");
 
   try {
-    const res = await fetch(`${API}/ask`, {
-      method: "POST",
+    const res  = await fetch(`${API}/ask`, {
+      method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ doc_id: currentDocId, question, mode: currentMode }),
+      body:    JSON.stringify({ doc_id: currentDocId, question, mode: currentMode }),
     });
     const data = await res.json();
-
     if (!res.ok) throw new Error(data.detail || "Bir hata oluştu");
 
     answerText.textContent = data.answer;
@@ -127,11 +124,32 @@ async function askQuestion() {
   } catch (err) {
     setStatus(askStatus, err.message, "error");
   } finally {
-    askBtn.disabled = false;
+    setAsking(false);
   }
 }
 
+function setAsking(loading) {
+  askBtn.disabled        = loading;
+  questionInput.disabled = loading;
+  askBtnLabel.textContent = loading ? "Yanıt bekleniyor" : "Sor";
+  askSpinner.style.display = loading ? "inline-block" : "none";
+}
+
+// ── Kopyala ─────────────────────────────────────
+
+copyBtn.addEventListener("click", async () => {
+  const text = answerText.textContent;
+  if (!text) return;
+  await navigator.clipboard.writeText(text);
+  copyBtn.textContent = "✓ Kopyalandı";
+  setTimeout(() => {
+    copyBtn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Kopyala`;
+  }, 2000);
+});
+
+// ── Yardımcı ────────────────────────────────────
+
 function setStatus(el, msg, type) {
   el.textContent = msg;
-  el.className = `status ${type}`;
+  el.className   = `status ${type}`;
 }
