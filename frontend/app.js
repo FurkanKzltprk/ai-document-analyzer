@@ -1,5 +1,111 @@
 const API = "http://localhost:8000";
 
+// ── Sistem Kaynak Grafikleri ─────────────────────
+
+const HISTORY = 60; // kaç veri noktası gösterilsin
+
+function makeChart(canvasId, color) {
+  const canvas = document.getElementById(canvasId);
+  const ctx    = canvas.getContext("2d");
+  const data   = Array(HISTORY).fill(0);
+
+  function draw() {
+    const W = canvas.offsetWidth;
+    const H = canvas.height;
+    canvas.width = W;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid çizgileri
+    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    ctx.lineWidth = 1;
+    [0.25, 0.5, 0.75].forEach(y => {
+      ctx.beginPath();
+      ctx.moveTo(0, y * H);
+      ctx.lineTo(W, y * H);
+      ctx.stroke();
+    });
+
+    // Dalga
+    const step = W / (HISTORY - 1);
+    ctx.beginPath();
+    data.forEach((v, i) => {
+      const x = i * step;
+      const y = H - (v / 100) * H * 0.92 - 2;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+
+    // Dolgu
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, color.replace(")", ",0.5)").replace("rgb", "rgba"));
+    grad.addColorStop(1, color.replace(")", ",0.02)").replace("rgb", "rgba"));
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Çizgi
+    ctx.beginPath();
+    data.forEach((v, i) => {
+      const x = i * step;
+      const y = H - (v / 100) * H * 0.92 - 2;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 1.5;
+    ctx.lineJoin    = "round";
+    ctx.stroke();
+  }
+
+  return { push(val) { data.push(val); data.shift(); draw(); }, draw };
+}
+
+const cpuChart = makeChart("cpu-chart", "rgb(124,111,255)");
+const ramChart = makeChart("ram-chart", "rgb(52,211,153)");
+
+const cpuVal   = document.getElementById("cpu-val");
+const ramVal   = document.getElementById("ram-val");
+const ramTotal = document.getElementById("ram-total");
+const cpuBadge = document.getElementById("cpu-badge");
+const ramBadge = document.getElementById("ram-badge");
+const cpuCard  = document.getElementById("cpu-card");
+const ramCard  = document.getElementById("ram-card");
+
+function levelClass(pct) {
+  if (pct < 40) return ["low",    "Normal"];
+  if (pct < 75) return ["medium", "Orta"];
+  return              ["high",   "Yüksek"];
+}
+
+async function fetchStats() {
+  try {
+    const res  = await fetch(`${API}/stats`);
+    const data = await res.json();
+
+    cpuVal.textContent = data.cpu_percent;
+    ramVal.textContent = data.ram_used_gb;
+    ramTotal.textContent = data.ram_total_gb;
+
+    const [cpuCls, cpuLbl] = levelClass(data.cpu_percent);
+    const [ramCls, ramLbl] = levelClass(data.ram_percent);
+
+    cpuBadge.textContent = cpuLbl; cpuBadge.className = `stat-badge ${cpuCls}`;
+    ramBadge.textContent = ramLbl; ramBadge.className = `stat-badge ${ramCls}`;
+
+    cpuCard.classList.toggle("active", data.cpu_percent > 50);
+    ramCard.classList.toggle("active", data.ram_percent > 70);
+
+    cpuChart.push(data.cpu_percent);
+    ramChart.push(data.ram_percent);
+  } catch { /* backend henüz hazır değilse sessizce geç */ }
+}
+
+fetchStats();
+setInterval(fetchStats, 2000);
+window.addEventListener("resize", () => { cpuChart.draw(); ramChart.draw(); });
+
 const dropZone      = document.getElementById("drop-zone");
 const fileInput     = document.getElementById("file-input");
 const dropLabel     = document.getElementById("drop-label");

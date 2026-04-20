@@ -1,3 +1,4 @@
+import psutil
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -55,3 +56,14 @@ async def ask_question(req: QuestionRequest):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/stats")
+def system_stats():
+    ram = psutil.virtual_memory()
+    return {
+        "cpu_percent": psutil.cpu_percent(interval=0.2),
+        "ram_used_gb": round(ram.used / 1024 ** 3, 1),
+        "ram_total_gb": round(ram.total / 1024 ** 3, 1),
+        "ram_percent": ram.percent,
+    }

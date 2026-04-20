@@ -22,6 +22,33 @@
       </div>
     </header>
 
+    <!-- Sistem Kaynakları -->
+    <section class="stats-grid">
+      <div class="stat-card" id="cpu-card">
+        <div class="stat-top">
+          <div>
+            <div class="stat-label">İşlemci (CPU)</div>
+            <div class="stat-value"><span id="cpu-val">—</span><span class="stat-unit">%</span></div>
+          </div>
+          <div class="stat-badge" id="cpu-badge">—</div>
+        </div>
+        <canvas id="cpu-chart" height="56"></canvas>
+        <div class="stat-note">Llama3 soru işlerken ~%60-90 kullanır · Boşta &lt;%5</div>
+      </div>
+
+      <div class="stat-card" id="ram-card">
+        <div class="stat-top">
+          <div>
+            <div class="stat-label">Bellek (RAM)</div>
+            <div class="stat-value"><span id="ram-val">—</span><span class="stat-unit">GB</span></div>
+          </div>
+          <div class="stat-badge" id="ram-badge">—</div>
+        </div>
+        <canvas id="ram-chart" height="56"></canvas>
+        <div class="stat-note">Llama3 ~4-5 GB kullanır · Toplam: <span id="ram-total">—</span> GB</div>
+      </div>
+    </section>
+
     <!-- Step 1: Mod + Upload -->
     <section class="card" id="upload-section">
       <div class="card-header">
