@@ -1,6 +1,6 @@
 # AI Document & CV Analyzer
 
-> Yapay zekaya verilerinizin gittiğinden endişe etmeyin — belge özetleme ve CV analizini kendi cihazınızda yapın.
+Yapay zekaya verilerinizin gittiğinden endişe etmeyin — belge özetleme ve CV analizini kendi cihazınızda yapın.
 
 Hiçbir bulut servisi yok. Hiçbir API anahtarı yok. Dosyalarınız sadece sizin bilgisayarınızda kalır.
 
